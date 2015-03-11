@@ -1,7 +1,7 @@
 function visualize_kinematics_file( file )
 %% function visualize_kinematics_file( file )
 % Read in a FLUSI Fourier kinematics file (typically *.in), and plot the 
-% kinematics, saving them to eps
+% kinematics, saving them to an EPS graphics file
 %--------------------------------------------------------------------------
 % Input:
 %       file - the kinematics.in to visualize
@@ -38,7 +38,7 @@ set(0,'DefaultaxesFontName','Times');
 set(0,'DefaulttextFontName','Times');
 
 % Create figure
-h_fig = figure(1);
+h_fig = figure;
 set(h_fig,'Units','centimeters','Position',0.65*[10 8.0 14.0 8.8],'Resize','on','PaperPositionMode','auto'); 
 clf;
 

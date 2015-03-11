@@ -9,6 +9,9 @@ function kinematics = read_kinematics_file(file)
 % Output:
 %       kinematics: struct with the following components:
 %
+%       kinematics.nfft_phi
+%       kinematics.nfft_alpha
+%       kinematics.nfft_theta
 %       kinematics.a0_phi
 %       kinematics.ai_phi
 %       kinematics.bi_phi
