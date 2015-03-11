@@ -11,43 +11,8 @@ function visualize_kinematics_file( file )
 %--------------------------------------------------------------------------
 
 
-%% read in *.in file
-fid = fopen(file,'r');
-% skip header from the file
-dummy = fgetl(fid);
-nfft_phi   = sscanf(fgetl(fid),'%i');
-nfft_alpha = sscanf(fgetl(fid),'%i');
-nfft_theta = sscanf(fgetl(fid),'%i');
-
-% read values for phi from the file
-dummy = fgetl(fid);
-dummy = fgetl(fid);
-a0_phi = sscanf(fgetl(fid),'%f');
-dummy = fgetl(fid);
-ai_phi = sscanf(fgetl(fid),'%f',nfft_phi);
-dummy = fgetl(fid);
-bi_phi = sscanf(fgetl(fid),'%f',nfft_phi);
-
-% read values for alpha from the file
-dummy = fgetl(fid);
-dummy = fgetl(fid);
-a0_alpha = sscanf(fgetl(fid),'%f');
-dummy = fgetl(fid);
-ai_alpha = sscanf(fgetl(fid),'%f',nfft_alpha);
-dummy = fgetl(fid);
-bi_alpha = sscanf(fgetl(fid),'%f',nfft_alpha);
-
-% read values for theta from the file
-dummy = fgetl(fid);
-dummy = fgetl(fid);
-a0_theta = sscanf(fgetl(fid),'%f');
-dummy = fgetl(fid);
-ai_theta = sscanf(fgetl(fid),'%f',nfft_theta);
-dummy = fgetl(fid);
-bi_theta = sscanf(fgetl(fid),'%f',nfft_theta);
-
-% we're done with the file
-fclose(fid);
+% read in kinematics.in file:
+kine = read_kinematics_file(file);
 
 
 
@@ -59,9 +24,9 @@ alpha = zeros(size(time));
 theta = zeros(size(time));
 
 for it = 1:length(time)
-   phi(it)   = Fseriesval( [a0_phi; ai_phi], bi_phi, time(it) );
-   alpha(it) = Fseriesval( [a0_alpha; ai_alpha], bi_alpha, time(it) );
-   theta(it) = Fseriesval( [a0_theta; ai_theta], bi_theta, time(it) );
+   phi(it)   = Fseriesval( [kine.a0_phi; kine.ai_phi], kine.bi_phi, time(it) );
+   alpha(it) = Fseriesval( [kine.a0_alpha; kine.ai_alpha], kine.bi_alpha, time(it) );
+   theta(it) = Fseriesval( [kine.a0_theta; kine.ai_theta], kine.bi_theta, time(it) );
 end
 
 
