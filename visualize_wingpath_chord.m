@@ -26,6 +26,7 @@ psi = 0;
 beta = 0;
 gamma = 0;
 eta_stroke = 0;
+draw_path=0;
 
 %% read in optional arguments
 i = 1;
@@ -65,6 +66,14 @@ while i <= length(varargin)
            end
            % take that value
            eta_stroke = varargin{i};
+       case 'draw_path'
+           assert(i+1<=numel(varargin),'missing an argument!');
+           i = i+1;
+           if (~isnumeric(varargin{i}))
+               error(['Parameter value for ' varargin{i-1} ' must be numeric!']);
+           end
+           % take that value
+           draw_path = varargin{i};
        otherwise
            error(['unkown parameter:' varargin{i}])
    end
@@ -121,6 +130,7 @@ set(0,'DefaulttextFontName','Times');
 % get colors
 C = colormap(jet(length(time)));
 
+%% draw chords
 for it=1:length(time)
     alpha_l = alpha(it)*(pi/180);
     theta_l = theta(it)*(pi/180);
@@ -149,16 +159,34 @@ for it=1:length(time)
               'Curvature',[1 1],'FaceColor',color,'EdgeColor',color);
 end
 
-% mark pivot point
+%% mark pivot point
 plot( x_pivot(1), x_pivot(3),'k+')
 
 
-% stroke plane angle w.r.t horizontal!!! (not flusi)
+%% draw stroke plane (angle w.r.t horizontal!!! (not flusi))
 beta_dudley = 90*pi/180-beta-eta_stroke;
 line( [-cos(beta_dudley)+x_pivot(1) cos(beta_dudley)+x_pivot(1)],...
       [sin(beta_dudley)+x_pivot(3) -sin(beta_dudley)+x_pivot(3)],...
       'color','k','linestyle','--')
   
+%% draw the path line, if desired  
+if (draw_path==1)
+    time = 0:1e-3:1;
+    [phi,alpha,theta] = evaluate_kinematics_file_time(time,kine);
+    
+    for it=1:length(time)
+        alpha_l = alpha(it)*(pi/180);
+        theta_l = theta(it)*(pi/180);
+        phi_l   = phi(it)  *(pi/180);
+        
+        % rotation matrix from body to wing coordinate system:
+        M_wing_l = Ry(alpha_l)*Rz(theta_l)*Rx(phi_l)*M_stroke_l;
+        
+        % these are in the body coordinate system:                
+        xc(:,it) = transpose(M_body) * transpose(M_wing_l) * x_wing  + x_pivot ;
+    end
+    plot(xc(1,:),xc(3,:),'k')
+end
   
 axis equal
 
