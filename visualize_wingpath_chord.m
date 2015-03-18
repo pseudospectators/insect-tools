@@ -27,6 +27,7 @@ beta = 0;
 gamma = 0;
 eta_stroke = 0;
 draw_path=0;
+pivot=[0.3 ;+0.23 ;0.23];
 
 %% read in optional arguments
 i = 1;
@@ -74,6 +75,14 @@ while i <= length(varargin)
            end
            % take that value
            draw_path = varargin{i};
+       case 'pivot'
+           assert(i+1<=numel(varargin),'missing an argument!');
+           i = i+1;
+           if (~isnumeric(varargin{i}))
+               error(['Parameter value for ' varargin{i-1} ' must be numeric!']);
+           end
+           % take that value
+           pivot = varargin{i};
        otherwise
            error(['unkown parameter:' varargin{i}])
    end
@@ -108,7 +117,7 @@ circle_radius = wing_chord/6;
 
 
 % coordinate of pivot point (in body coordinate system!)
-x_pivot = [0.3 ;+0.23 ;0.23];
+x_pivot = pivot;
 % we assume the body to be at the origin:
 xc_body = [0 0 0]';
 
@@ -140,9 +149,9 @@ for it=1:length(time)
     M_wing_l = Ry(alpha_l)*Rz(theta_l)*Rx(phi_l)*M_stroke_l;
     
     % these are in the body coordinate system:
-    xc = transpose(M_body) * transpose(M_wing_l) * x_wing  + x_pivot ;
-    x_le = transpose(M_body) * transpose(M_wing_l) * [0.5*wing_chord;1;0] + x_pivot;
-    x_te = transpose(M_body) * transpose(M_wing_l) * [-0.5*wing_chord;1;0] + x_pivot;
+    xc = transpose(M_body) * (transpose(M_wing_l) * x_wing  + x_pivot );
+    x_le = transpose(M_body) * (transpose(M_wing_l) * [0.5*wing_chord;1;0] + x_pivot);
+    x_te = transpose(M_body) * (transpose(M_wing_l) * [-0.5*wing_chord;1;0] + x_pivot);
     
     % color all cuts differently
     color = C(it,:);
@@ -160,13 +169,15 @@ for it=1:length(time)
 end
 
 %% mark pivot point
-plot( x_pivot(1), x_pivot(3),'k+')
+
+x_pivot_glob = transpose(M_body) * x_pivot;
+plot( x_pivot_glob(1), x_pivot_glob(3),'k+')
 
 
 %% draw stroke plane (angle w.r.t horizontal!!! (not flusi))
 beta_dudley = 90*pi/180-beta-eta_stroke;
-line( [-cos(beta_dudley)+x_pivot(1) cos(beta_dudley)+x_pivot(1)],...
-      [sin(beta_dudley)+x_pivot(3) -sin(beta_dudley)+x_pivot(3)],...
+line( [-cos(beta_dudley)+x_pivot_glob(1) cos(beta_dudley)+x_pivot_glob(1)],...
+      [sin(beta_dudley)+x_pivot_glob(3) -sin(beta_dudley)+x_pivot_glob(3)],...
       'color','k','linestyle','--')
   
 %% draw the path line, if desired  
@@ -183,7 +194,7 @@ if (draw_path==1)
         M_wing_l = Ry(alpha_l)*Rz(theta_l)*Rx(phi_l)*M_stroke_l;
         
         % these are in the body coordinate system:                
-        xc(:,it) = transpose(M_body) * transpose(M_wing_l) * x_wing  + x_pivot ;
+        xc(:,it) = transpose(M_body) * (transpose(M_wing_l) * x_wing  + x_pivot) ;
     end
     plot(xc(1,:),xc(3,:),'k')
 end
