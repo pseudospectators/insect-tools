@@ -41,7 +41,7 @@ plot( time, phi, time, alpha, time, theta, 'LineWidth', 1 )
 axis([0 1 -90 90]);
 set(gca,'XTick',[0:0.2:1]);
 set(gca,'YTick',[-90:30:90]);
-legend('positional','feathering','elevation','Location','SouthEast');
+legend('positional','feathering','elevation','Location','Best');
 xlabel('wingbeat time fraction');
 ylabel('angle, deg');
 

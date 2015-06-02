@@ -9,6 +9,10 @@ function visualize_wingpath_chord( file, varargin )
 %   'gamma': body yaw angle (in degree)
 %   'psi': body roll angle (in degree)
 %   'eta_stroke': anatomical stroke plane angle (in degree)
+%   'draw_path' : draw the path or not?
+%   'pivot': pivot point coordinates in body system (LEFT WING)
+% -------------------------------------------------------------------------
+% NOTE: This concerns the LEFT wing in parameter file
 % -------------------------------------------------------------------------
 %   Example call:
 %
@@ -89,6 +93,9 @@ while i <= length(varargin)
    i=i+1;
 end
 
+fprintf('Draw winpath with psi_roll=%f beta_pitch=%f gamma_yaw=%f eta_stroke=%f pivot=[%f %f %f]\n',...
+        psi,beta,gamma,eta_stroke,pivot)
+
 %----------------------------------------------------------------------------------------
 %% construct angles from Fourier series
 time = 0:2.5e-2:1;
@@ -141,6 +148,7 @@ C = colormap(jet(length(time)));
 
 %% draw chords
 for it=1:length(time)
+    % get current angles in radiants
     alpha_l = alpha(it)*(pi/180);
     theta_l = theta(it)*(pi/180);
     phi_l   = phi(it)  *(pi/180);
@@ -149,9 +157,9 @@ for it=1:length(time)
     M_wing_l = Ry(alpha_l)*Rz(theta_l)*Rx(phi_l)*M_stroke_l;
     
     % these are in the body coordinate system:
-    xc = transpose(M_body) * (transpose(M_wing_l) * x_wing  + x_pivot );
-    x_le = transpose(M_body) * (transpose(M_wing_l) * [0.5*wing_chord;1;0] + x_pivot);
-    x_te = transpose(M_body) * (transpose(M_wing_l) * [-0.5*wing_chord;1;0] + x_pivot);
+    xc   = transpose(M_body) * (transpose(M_wing_l)*x_wing  + x_pivot );
+    x_le = transpose(M_body) * (transpose(M_wing_l)*[ 0.5*wing_chord;1;0] + x_pivot);
+    x_te = transpose(M_body) * (transpose(M_wing_l)*[-0.5*wing_chord;1;0] + x_pivot);
     
     % color all cuts differently
     color = C(it,:);
@@ -199,6 +207,8 @@ if (draw_path==1)
     plot(xc(1,:),xc(3,:),'k')
 end
   
+xlabel('x (global)');
+ylabel('z (global)');
 axis equal
 
 
