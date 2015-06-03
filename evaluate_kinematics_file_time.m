@@ -1,7 +1,7 @@
 function [phi,alpha,theta] = evaluate_kinematics_file_time(time,kine)
 %% [phi,alpha,theta] = evaluate_kinematics_file_time(time,kine)
-% evaluate the kinematics "kine" (read_kinematics_file)
-% on the time vector t
+% evaluate the kinematics struct "kine" (output of read_kinematics_file)
+% on the time vector time
 
 phi   = zeros(size(time));
 alpha = zeros(size(time));
