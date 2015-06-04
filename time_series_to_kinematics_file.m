@@ -19,6 +19,18 @@ if (sum(nfft)==0)
     mode='interactive';
 end
 
+if (max(alpha)<2*pi)
+    warning('max(alpha)<2*pi: maybe you gave me radiants? I need degrees!');
+end
+
+if (max(phi)<2*pi)
+    warning('max(phi)<2*pi: maybe you gave me radiants? I need degrees!');
+end
+
+if (max(theta)<2*pi)
+    warning('max(theta)<2*pi: maybe you gave me radiants? I need degrees!');
+end
+
 if (strcmp(mode,'interactive'))    
     %% decide nfft for alpha,phi,theta interactively
     h=msgbox('determine nfft interactively for ALPHA'); uiwait(h);

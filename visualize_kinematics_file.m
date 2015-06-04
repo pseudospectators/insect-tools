@@ -38,10 +38,10 @@ plot( time, phi, time, alpha, time, theta, 'LineWidth', 1 )
 
 
 % Annotate
-axis([0 1 -90 90]);
+axis([0 1 -110 110]);
 set(gca,'XTick',[0:0.2:1]);
 set(gca,'YTick',[-90:30:90]);
-legend('positional','feathering','elevation','Location','Best');
+legend('positional','feathering','elevation','Location','SouthWest');
 xlabel('wingbeat time fraction');
 ylabel('angle, deg');
 

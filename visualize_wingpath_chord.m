@@ -93,7 +93,7 @@ while i <= length(varargin)
    i=i+1;
 end
 
-fprintf('Draw winpath with psi_roll=%f beta_pitch=%f gamma_yaw=%f eta_stroke=%f pivot=[%f %f %f]\n',...
+fprintf('Draw winpath with psi_roll=%2.1f beta_pitch=%2.1f gamma_yaw=%2.1f eta_stroke=%2.1f pivot=[%2.1f %2.1f %2.1f]\n',...
         psi,beta,gamma,eta_stroke,pivot)
 
 %----------------------------------------------------------------------------------------
