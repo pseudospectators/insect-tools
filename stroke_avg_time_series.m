@@ -9,7 +9,15 @@ if (nargin==2)
 end
 
 tmax = t(end);
-n = floor(tmax/tstroke);
+n = ceil(tmax/tstroke);
+
+% check if we're not actually fairly close to having the next period
+% complete, then we can extrapolate some reasonable value
+
+if ( n*tstroke - tmax) >0.025
+    % it is not complete, decrease
+    n = n-1;
+end
 
 % fprintf('we have %i complete strokes\n', n)
 
