@@ -34,11 +34,12 @@ if ( strfind(file,'.ini') )
     fprintf(fid,'[kinematics]\n');
     fprintf(fid,'; if the format changes in the future\n');
     fprintf(fid,'format=2015-10-09; currently unused\n');
-    fprintf(fid,'convention=flusi; currently unused\n');
-    fprintf(fid,'units=degree; currently unused\n');
-    fprintf(fid,'; is this hermite or Fourier coefficients\n');
-    fprintf(fid,'type=fourier;\n');
-    
+    fprintf(fid,'convention=flusi; currently unused\n');    
+    fprintf(fid,'; what units, radiant or degree?\n');
+    fprintf(fid,'units=degree;\n');
+    fprintf(fid,'; is this hermite or Fourier coefficients?\n');
+    fprintf(fid,'type=fourier;\n'); 
+    fprintf(fid,';------------------------\n');
     fprintf(fid,'nfft_phi=%i;\n',  kinematics.nfft_phi  );
     fprintf(fid,'nfft_alpha=%i;\n',kinematics.nfft_alpha);
     fprintf(fid,'nfft_theta=%i;\n',kinematics.nfft_theta);
