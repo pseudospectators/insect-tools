@@ -24,6 +24,11 @@ end
 tavg=zeros(n,1);
 favg=zeros(n,1);
 
+if (length(t)~=length(f))
+    warning('length are not equal')
+    return
+end
+
 for i = 1:n
    t1 = (i-1)*tstroke;
    t2 = (i)*tstroke;

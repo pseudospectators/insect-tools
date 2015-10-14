@@ -1,15 +1,19 @@
-function visualize_kinematics_file( file )
+function visualize_kinematics_file( file, invert_theta )
 %% function visualize_kinematics_file( file )
 % Read in a FLUSI Fourier kinematics file (typically *.in), and plot the 
 % kinematics, saving them to an EPS graphics file
 %--------------------------------------------------------------------------
 % Input:
 %       file - the kinematics.in to visualize
+%       invert_theta (0/1), optional
 %--------------------------------------------------------------------------
 % Output:
 %       writes kinematics.in.eps directly to disk.
 %--------------------------------------------------------------------------
 
+if nargin==1
+    invert_theta=0;
+end
 
 % read in kinematics.in file:
 kine = read_kinematics_file(file);
@@ -33,8 +37,11 @@ h_fig = figure;
 set(h_fig,'Units','centimeters','Position',0.65*[10 8.0 14.0 8.8],'Resize','on','PaperPositionMode','auto'); 
 clf;
 
-
-plot( time, phi, time, alpha, time, theta, 'LineWidth', 1 )
+if invert_theta
+    plot( time, phi, time, alpha, time, -theta, 'LineWidth', 1 )
+else
+    plot( time, phi, time, alpha, time, theta, 'LineWidth', 1 )
+end
 
 
 % Annotate
