@@ -1,10 +1,11 @@
 function kinematics = read_kinematics_file(file)
 %% function kinematics = read_kinematics_file(file)
 % returns a struct with the fourier coefficients read from a flusi
-% kinematics.in file
+% kinematics.ini - kinematic.in file
+% note old *.in files are still supported but deprecated
 %--------------------------------------------------------------------------
 % Input:
-%       file - the kinematics.in to visualize
+%       file - the kinematics.ini to visualize
 %--------------------------------------------------------------------------
 % Output:
 %       kinematics: struct with the following components:
@@ -21,7 +22,6 @@ function kinematics = read_kinematics_file(file)
 %       kinematics.a0_theta
 %       kinematics.ai_theta
 %       kinematics.bi_theta
-%
 %--------------------------------------------------------------------------
 
 if (strfind(file,'.ini'))

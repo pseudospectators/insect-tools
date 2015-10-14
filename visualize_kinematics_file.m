@@ -1,6 +1,6 @@
 function visualize_kinematics_file( file, invert_theta )
 %% function visualize_kinematics_file( file )
-% Read in a FLUSI Fourier kinematics file (typically *.in), and plot the 
+% Read in a FLUSI Fourier kinematics file (typically *.ini), and plot the 
 % kinematics, saving them to an EPS graphics file
 %--------------------------------------------------------------------------
 % Input:
@@ -15,7 +15,7 @@ if nargin==1
     invert_theta=0;
 end
 
-% read in kinematics.in file:
+% read in kinematics.ini file:
 kine = read_kinematics_file(file);
 
 
@@ -34,7 +34,7 @@ set(0,'DefaulttextFontName','Times');
 
 % Create figure
 h_fig = figure;
-set(h_fig,'Units','centimeters','Position',0.65*[10 8.0 14.0 8.8],'Resize','on','PaperPositionMode','auto'); 
+set(h_fig,'Units','centimeters','Position',0.65*[10 8.0 19.0 8.8],'Resize','on','PaperPositionMode','auto'); 
 clf;
 
 if invert_theta
@@ -45,10 +45,10 @@ end
 
 
 % Annotate
-axis([0 1 -110 110]);
+axis([0 1 -100 100]);
 set(gca,'XTick',[0:0.2:1]);
 set(gca,'YTick',[-90:30:90]);
-legend('positional','feathering','elevation','Location','SouthWest');
+legend('positional','feathering','elevation','Location','NorthEastOutside');
 xlabel('wingbeat time fraction');
 ylabel('angle, deg');
 

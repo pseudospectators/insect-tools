@@ -1,10 +1,10 @@
 function write_kinematics_file(file, kinematics, header)
 %% function write_kinematics_file(file, kinematics)
 % write the Fourier series kinematics data specified in the struct
-% kinematics to a FLUSI-compatible *.in file
+% kinematics to a FLUSI-compatible *.ini file
 %--------------------------------------------------------------------------
 % Input:
-%       file - the kinematics.in to write to
+%       file - the kinematics.ini to write to
 %       header - header line for file
 %
 %       kinematics: struct with the following components:
@@ -23,6 +23,9 @@ function write_kinematics_file(file, kinematics, header)
 %
 %--------------------------------------------------------------------------
 
+if (strfind(file,'.in'))
+    error('File ending not recongnized: did you forget the ending *.ini?')
+end
 
 if ( strfind(file,'.ini') )
     %% Save to text file using new free-form *.ini style format 
