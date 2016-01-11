@@ -23,9 +23,10 @@ function write_kinematics_file(file, kinematics, header)
 %
 %--------------------------------------------------------------------------
 
-if (strfind(file,'.in'))
-    error('File ending not recongnized: did you forget the ending *.ini?')
-end
+% This stops even when the file ends with .ini, at least in some versions of Matlab
+%if (strfind(file,'.in'))
+%    error('File ending not recongnized: did you forget the ending *.ini?')
+%end
 
 if ( strfind(file,'.ini') )
     %% Save to text file using new free-form *.ini style format 
