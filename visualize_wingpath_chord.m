@@ -93,7 +93,7 @@ while i <= length(varargin)
    i=i+1;
 end
 
-fprintf('Draw winpath with psi_roll=%2.1f beta_pitch=%2.1f gamma_yaw=%2.1f eta_stroke=%2.1f pivot=[%2.1f %2.1f %2.1f]\n',...
+fprintf('Draw wingpath with psi_roll=%2.1f beta_pitch=%2.1f gamma_yaw=%2.1f eta_stroke=%2.1f pivot=[%2.1f %2.1f %2.1f]\n',...
         psi,beta,gamma,eta_stroke,pivot)
 
 %----------------------------------------------------------------------------------------
@@ -190,7 +190,9 @@ line( [-cos(beta_dudley)+x_pivot_glob(1) cos(beta_dudley)+x_pivot_glob(1)],...
   
 %% draw the path line, if desired  
 if (draw_path==1)
+    % create fine-sampled time vector
     time = 0:1e-3:1;
+    % and evaluate the kinematics file on it
     [phi,alpha,theta] = evaluate_kinematics_file_time(time,kine);
     
     for it=1:length(time)

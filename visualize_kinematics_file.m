@@ -1,5 +1,5 @@
 function visualize_kinematics_file( file, invert_theta )
-%% function visualize_kinematics_file( file )
+%% function visualize_kinematics_file( file, invert_theta )
 % Read in a FLUSI Fourier kinematics file (typically *.ini), and plot the 
 % kinematics, saving them to an EPS graphics file
 %--------------------------------------------------------------------------

@@ -5,7 +5,7 @@ function write_kinematics_file(file, kinematics, header)
 %--------------------------------------------------------------------------
 % Input:
 %       file - the kinematics.ini to write to
-%       header - header line for file
+%       header (optional) - header line for file
 %
 %       kinematics: struct with the following components:
 %           kinematics.nfft_phi
@@ -23,15 +23,13 @@ function write_kinematics_file(file, kinematics, header)
 %
 %--------------------------------------------------------------------------
 
-% This stops even when the file ends with .ini, at least in some versions of Matlab
-%if (strfind(file,'.in'))
-%    error('File ending not recongnized: did you forget the ending *.ini?')
-%end
-
 if ( strfind(file,'.ini') )
     %% Save to text file using new free-form *.ini style format 
     fid = fopen(file,'w');
-    fprintf(fid,'; %s\n', header);
+    if (nargin==3)
+        % write header (optional)
+        fprintf(fid,'; %s\n', header);
+    end
     fprintf(fid,'[kinematics]\n');
     fprintf(fid,'; if the format changes in the future\n');
     fprintf(fid,'format=2015-10-09; currently unused\n');
