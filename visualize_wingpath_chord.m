@@ -182,11 +182,16 @@ x_pivot_glob = transpose(M_body) * x_pivot;
 plot( x_pivot_glob(1), x_pivot_glob(3),'k+')
 
 
-%% draw stroke plane (angle w.r.t horizontal!!! (not flusi))
-beta_dudley = 90*pi/180-beta-eta_stroke;
-line( [-cos(beta_dudley)+x_pivot_glob(1) cos(beta_dudley)+x_pivot_glob(1)],...
-      [sin(beta_dudley)+x_pivot_glob(3) -sin(beta_dudley)+x_pivot_glob(3)],...
-      'color','k','linestyle','--')
+%% draw stroke plane dashed line
+M_stroke = Ry(eta_stroke);
+% we draw the line between [0,0,-1] and [0,0,1] in the stroke system
+xs1 = [0 0 1]'; xs2=[0 0 -1]';
+% bring these points back to the global system
+x1 = transpose(M_body) * ( transpose(M_stroke)*xs1 + x_pivot );
+x2 = transpose(M_body) * ( transpose(M_stroke)*xs2 + x_pivot );
+% remember we're in the x-z plane
+line ( [x1(1) x2(1)], [x1(3) x2(3)], 'color','k','linestyle','--' )
+
   
 %% draw the path line, if desired  
 if (draw_path==1)
