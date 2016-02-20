@@ -112,3 +112,5 @@ end
 if (strcmp(frame,'yes'))
     patch( [tmin tmax tmax tmin], [fmin fmin fmax fmax], [-2 -2 -2 -2],[1 1 1]);
 end
+
+set(gca,'Layer','top') 

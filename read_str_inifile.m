@@ -23,6 +23,7 @@ while (ischar(line))
         % trim leading and trailing spaces
         line_trim = strtrim(line);
         % is the line commented entirely?
+        if ( numel(line_trim)>0 )
         if ((line_trim(1)~=';')&&(line_trim(1)~='#')&&(line_trim(1)~='%')&&(line_trim(1)~='!'))
             
             % remove comments from line:
@@ -48,6 +49,7 @@ while (ischar(line))
                     break
                 end
             end
+        end
         end
     else
         % end of file
