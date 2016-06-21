@@ -22,7 +22,7 @@ function indicate_strokes(varargin)
 %% define default values here:
 fig = gcf;
 color = [0.85 0.85 0.85];
-frame = 'yes';
+frame = 'no';
 t_begin = 0;
 t_reversal = 0;
 
@@ -88,7 +88,7 @@ fmax = a(4);
 if (length(t_begin)>1)
     tdown = t_begin;
 else
-    tdown = 0:tmax-1;
+    tdown = tmin:tmax-1;
 end
 
 % determine end of shaded areas (reversal timing)
