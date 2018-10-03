@@ -15,6 +15,7 @@ import glob
 
 
 
+
 # chunk a string, regardless of whatever delimiter, after length characters,
 # return a list
 def chunkstring(string, length):
@@ -30,8 +31,17 @@ def deg2rad(value):
 def vct(x):
     v = np.matrix(x)
     v = v[np.newaxis]
-    v = v.reshape(3,1)
+    v = v.reshape(len(x),1)
     return v
+
+def ylim_auto(ax, x, y):
+   # ax: axes object handle
+   #  x: data for entire x-axes
+   #  y: data for entire y-axes
+   # assumption: you have already set the x-limit as desired
+   lims = ax.get_xlim()
+   i = np.where( (x > lims[0]) &  (x < lims[1]) )[0]
+   ax.set_ylim( y[i].min(), y[i].max() )
 
 # set axis spacing to equal by modifying only the axis limits, not touching the
 # size of the figure
@@ -50,10 +60,22 @@ def axis_equal_keepbox( fig, ax ):
         l_new = (y2-y1) * w/h
         plt.xlim([ x1-(l_new-l_old)/2.0, x2+(l_new-l_old)/2.0])
 
+# read pointcloudfile
+def read_pointcloud(file):
+    data = np.loadtxt(file, skiprows=1, delimiter=' ')
+    if data.shape[1] > 6:
+        data = np.delete( data, range(3,data.shape[1]-3) , 1)
+    print(data.shape)
+    return data
+
+def write_pointcloud(file, data, header):
+    write_csv_file( file, data, header=header, sep=' ')
+
 
 # Read in a t-file, optionally interpolate to equidistant time vector
 def load_t_file( fname, interp=False, time_out=None, return_header=False, verbose=True ):
-    print('reading file %s' %fname)
+    if verbose:
+        print('reading file %s' %fname)
 
     # does the user want the header back?
     if return_header:
@@ -87,7 +109,6 @@ def load_t_file( fname, interp=False, time_out=None, return_header=False, verbos
     data_raw = np.loadtxt( fname, comments="%")
     nt_raw, ncols = data_raw.shape
 
-
     # retain only unique values (judging by the time stamp, so if multiple rows
     # have exactly the same time, only one of them is kept)
     dummy, unique_indices = np.unique( data_raw[:,0], return_index=True )
@@ -96,7 +117,8 @@ def load_t_file( fname, interp=False, time_out=None, return_header=False, verbos
 
     # info on data
     nt, ncols = data.shape
-    print( 'nt_unique=%i nt_raw=%i ncols=%i' % (nt, nt_raw, ncols) )
+    if verbose:
+        print( 'nt_unique=%i nt_raw=%i ncols=%i' % (nt, nt_raw, ncols) )
 
     # if desired, the data is interpolated to an equidistant time grid
     if interp:
@@ -110,7 +132,12 @@ def load_t_file( fname, interp=False, time_out=None, return_header=False, verbos
             time_out = np.linspace( start=t1, stop=t2, endpoint=True, num=nt )
         # equidistant time step
         dt = time_out[1]-time_out[0]
-        print('interpolating to nt=%i (dt=%e) points' % (time_out.size, dt) )
+        if verbose:
+            print('interpolating to nt=%i (dt=%e) points' % (time_out.size, dt) )
+
+            if data[0,0] > time_out[0] or data[-1,0] < time_out[-1]:
+                print('WARNING you want to interpolate beyond bounds of data')
+                print("Data: %e<=t<=%e Interp: %e<=t<=%e" % (data[0,0], data[-1,0], time_out[0], time_out[-1]))
 
         data = interp_matrix( data, time_out )
 
@@ -122,11 +149,13 @@ def load_t_file( fname, interp=False, time_out=None, return_header=False, verbos
 
 
 
-def stroke_average_matrix( d, tstroke=1.0 ):
+def stroke_average_matrix( d, tstroke=1.0, t1=None, t2=None ):
     # start time of data
-    t1 = d[0,0]
+    if t1 is None:
+        t1 = d[0,0]
     # end time of data
-    t2 = d[-1,0]
+    if t2 is None:
+        t2 = d[-1,0]
 
     # will there be any strokes at all?
     if t2-t1 < tstroke:
@@ -137,7 +166,7 @@ def stroke_average_matrix( d, tstroke=1.0 ):
 
     # allocate stroke average matrix
     nt, ncols = d.shape
-    navgs = np.int( np.round((t2-t1)/tstroke) )
+    navgs = np.int( np.floor((t2-t1)/tstroke) )
     D = np.zeros([navgs,ncols])
     # running index of strokes
     istroke = 0
@@ -156,10 +185,10 @@ def stroke_average_matrix( d, tstroke=1.0 ):
             i = i+1
         # find index where stroke ends
         j = i
-        while d[j,0]<tend:
+        while d[j,0]<tend and j<d.shape[0]-1:
             j = j+1
 
- #       print('t1=%f t2=%f i1=%i i2=%i %f %f' % (tbegin, tend, i, j, d[i,0], d[j,0]))
+#        print('t1=%f t2=%f i1=%i i2=%i %f %f' % (tbegin, tend, i, j, d[i,0], d[j,0]))
 
         # actual integration. see wikipedia :)
         # the integral f(x)dx over x2-x1 is the average of the function on that
@@ -174,9 +203,7 @@ def stroke_average_matrix( d, tstroke=1.0 ):
 
 
 
-def write_csv_file( fname, d, header=None):
-    # define separator
-    sep = ';'
+def write_csv_file( fname, d, header=None, sep=';'):
     # open file, erase existing
     f = open( fname, 'w' )
 
@@ -184,8 +211,11 @@ def write_csv_file( fname, d, header=None):
     # write that
     if not header == None:
         # write column headers
-        for name in header:
-            f.write( name+sep )
+        if header is list:
+            for name in header:
+                f.write( name+sep )
+        else:
+            f.write(header)
         # newline after header
         f.write('\n')
         # check
@@ -232,7 +262,7 @@ def Fserieseval(a0,ai,bi,time):
 def read_kinematics_file( fname ):
     import configparser
 
-    config = configparser.ConfigParser( inline_comment_prefixes=(';') )
+    config = configparser.ConfigParser( inline_comment_prefixes=(';'), allow_no_value=True )
     # read the ini-file
     config.read(fname)
 
@@ -322,6 +352,20 @@ def Rz( angle ):
     Rx = np.matrix( Rx )
     return Rx
 
+
+def Rmirror( x0, n):
+    # mirror by a plane through origin x0 with given normal n
+    # source: https://en.wikipedia.org/wiki/Transformation_matrix#Reflection_2
+    Rmirror =  np.zeros([4,4])
+
+    a, b, c = n[0], n[1], n[2]
+    d = -(a*x0[0] + b*x0[1] + c*x0[2])
+
+    Rmirror = [ [1-2*a**2,-2*a*b,-2*a*c,-2*a*d], [-2*a*b,1-2*b**2,-2*b*c,-2*b*d], [-2*a*c,-2*b*c,1-2*c**2,-2*c*d],[0,0,0,1] ]
+    # note the difference between array and matrix (it is the multiplication)
+    Rmirror = np.matrix( Rmirror )
+
+    return(Rmirror)
 
 def visualize_wingpath_chord( fname, psi=0.0, gamma=0.0, beta=0.0, eta_stroke=0.0, equal_axis=True, DrawPath=False,
                              x_pivot_b=np.matrix([0,0,0]), x_body_g=np.matrix([0,0,0]) ):
@@ -454,56 +498,22 @@ def interp_matrix( d, time_new ):
     return d2
 
 
-def read_flusi_HDF5( fname ):
-    import h5py
 
-    f = h5py.File(fname, 'r')
+def get_dset_name( fname ):
+    from os.path import basename
+    dset_name = basename(fname)
+    dset_name = dset_name[0:dset_name.find('_')]
 
-    # list all hdf5 datasets in the file - usually, we expect
-    # to find only one.
-    datasets = f.keys()
-    # if we find more than one dset we warn that this is unusual
-    if (len(datasets) == 1):
-        print("we found more than one dset in the file (problemo)"+file)
-
-    else:
-        # as there should be only one, this should be our dataset:
-        dset_name = datasets[0]
-
-        # get the dataset handle
-        dset_id = f.get(dset_name)
-
-        # from the dset handle, read the attributes
-        time = dset_id.attrs.get('time')
-        res = dset_id.attrs.get('nxyz')
-        box = dset_id.attrs.get('domain_size')
-
-        field = np.zeros(res)
-        b = f[dset_name][:]
-        data = np.array(b, dtype=float)
-
-    return time, box, data
+    return dset_name
 
 
-def write_flusi_HDF5( fname, time, box, data, viscosity=0.0 ):
-    import h5py
+def get_timestamp_name( fname ):
+    from os.path import basename
+    dset_name = basename(fname)
+    dset_name = dset_name[dset_name.find('_')+1:dset_name.find('.')]
 
-    dset_name = fname[0:fname.find('_')]
+    return dset_name
 
-    print( "Writing to dset=%s max=%e min=%e" % (dset_name, np.max(data), np.min(data)) )
-
-    fid = h5py.File( fname, 'w')
-    fid.create_dataset( dset_name, data=data)
-    fid.close()
-
-    fid = h5py.File(fname,'a')
-    dset_id = fid.get( dset_name )
-    dset_id.attrs.create('time', time)
-    dset_id.attrs.create('viscosity', viscosity)
-    dset_id.attrs.create('domain_size', [box[2],box[1],box[0]] )
-    dset_id.attrs.create('nxyz', [data.shape[2],data.shape[1],data.shape[0]])
-
-    fid.close()
 
 
 def indicate_strokes( tstart=None, ifig=None, tstroke=1.0, ax=None ):
@@ -590,16 +600,172 @@ def make_white_plot( ax ):
 
 
 
-def plot_a_col( fname, col ):
-    d, header = load_t_file( fname, return_header=True)
+
+def hit_analysis():
+    import glob
+
+    # Take all analyis files from ./flusi --turbulence-analysis and put all
+    # data in one csv file
+
+    showed_header=False
+
+    fid = open('complete_analysis.csv', 'w')
+
+    for file in sorted( glob.glob('analysis_*.txt') ):
+        print(file)
+        # read entire file to list of lines
+        with open (file, "r") as myfile:
+            data = myfile.readlines()
+
+        # remove header lines
+        del data[0:2+1]
+        del data[1]
+
+        # fetch viscosity from remaining header
+        header = data[0].split()
+        nu = float(header[7])
+
+        if not showed_header:
+            showed_header = True
+            # write header
+            fid.write('name;')
+            for line in data[1:]:
+                fid.write("%15s; " % (line[20:-1]))
+            fid.write('viscosity;\n')
+
+        # read remaining data items
+        fid.write("%s; " % (file))
+        for line in data[1:]:
+            fid.write("%e; " % (float(line[0:20])))
+
+        fid.write("%e;" % (nu) )
+        fid.write("\n")
+
+    fid.close()
+
+
+def plot_a_col( data, col ):
     D = stroke_average_matrix( data, tstroke=0.5 )
-
-    plt.figure()
-    h = plt.plot( d[:,0], d[:,col], label=header[col] )
-
+    plt.plot( data[:,0], data[:,col] )
     plt.plot( D[:,0], D[:,col], linestyle='None', marker='o', markerfacecolor='none', color=h[-1].get_color())
-    plt.xlabel('$t/T$')
-    plt.ylabel('$\text{'+header[col]+'}$')
+
+
+
+def forces_g2b( data, kinematics ):
+    """ Transform timeseries data (forces.t) to body system defined by kinematics.t
+    """
+
+    # they are not necessarily at the same times t -> interpolation
+    time = data[:,0]
+
+    # interpolate kinematics to data time vector
+    k = interp_matrix( kinematics, time )
+    psi = k[:,4]
+    beta  = k[:,5]
+    gamma  = k[:,6]
+
+    data_new = data.copy()
+
+    for it in range(data.shape[0]):
+        M_body = Rx(psi[it])*Ry(beta[it])*Rz(gamma[it])
+        # usual forces
+        Fg = vct( [data[it,1],data[it,2],data[it,3]] )
+        Mg = vct( [data[it,7],data[it,8],data[it,9]] )
+        Fb = M_body*Fg
+        Mb = M_body*Mg
+        data_new[it,1:3+1] = Fb.transpose()
+        data_new[it,7:9+1] = Mb.transpose()
+        # unsteady corrections (rarely used)
+        Fg = vct( [data[it,4],data[it,5],data[it,6]] )
+        Mg = vct( [data[it,10],data[it,11],data[it,12]] )
+        Fb = M_body*Fg
+        Mb = M_body*Mg
+        data_new[it,4:6+1] = Fb.transpose()
+        data_new[it,10:12+1] = Mb.transpose()
+
+    return(data_new)
+
+
+def read_flusi_HDF5( fname ):
+    import h5py
+
+    f = h5py.File(fname, 'r')
+
+
+    # list all hdf5 datasets in the file - usually, we expect
+    # to find only one.
+    datasets = list(f.keys())
+    # if we find more than one dset we warn that this is unusual
+    if (len(datasets) != 1):
+        print("we found more than one dset in the file (problemo)"+fname)
+
+    else:
+        # as there should be only one, this should be our dataset:
+        dset_name = datasets[0]
+
+        # get the dataset handle
+        dset_id = f.get(dset_name)
+
+        # from the dset handle, read the attributes
+        time = dset_id.attrs.get('time')
+        res = dset_id.attrs.get('nxyz')
+        box = dset_id.attrs.get('domain_size')
+        origin = dset_id.attrs.get('origin')
+        if origin is None:
+            origin = np.array([0,0,0])
+
+        b = f[dset_name][:]
+        data = np.array(b, dtype=float)
+        # its a funny flusi convention that we have to swap axes here, and I
+        # never understood why it is this way.
+        data = np.swapaxes(data, 0, 2)
+
+        if (np.max(res-data.shape)>0):
+            print('WARNING!!!!!!')
+            print('read_flusi_HDF5: array dimensions look funny')
+
+        f.close()
+
+    print("We read FLUSI file %s at time=%f" % (fname, time) )
+
+    return time, box, origin, data
+
+
+
+def write_flusi_HDF5( fname, time, box, data, viscosity=0.0, origin=np.array([0.0,0.0,0.0]) ):
+    import h5py
+
+    dset_name = get_dset_name( fname )
+
+    if len(data.shape)==3:
+        #3d data
+        nx, ny, nz = data.shape
+        print( "Writing to file=%s dset=%s max=%e min=%e size=%i %i %i " % (fname, dset_name, np.max(data), np.min(data), nx,ny,nz) )
+        # i dont really know why, but there is a messup in fortran vs c ordering, so here we have to swap
+        # axis
+        data = np.swapaxes(data, 0, 2)
+        nxyz = np.array([nx,ny,nz])
+    else:
+        #2d data
+        nx, ny = data.shape
+        print( "Writing to file=%s dset=%s max=%e min=%e size=%i %i" % (fname, dset_name, np.max(data), np.min(data), nx,ny) )
+        data = np.swapaxes(data, 0, 1)
+        nxyz = np.array([nx,ny])
+
+    fid = h5py.File( fname, 'w')
+
+    fid.create_dataset( dset_name, data=data, dtype=np.float32 )#, shape=data.shape[::-1] )
+    fid.close()
+
+    fid = h5py.File(fname,'a')
+    dset_id = fid.get( dset_name )
+    dset_id.attrs.create('time', time)
+    dset_id.attrs.create('viscosity', viscosity)
+    dset_id.attrs.create('domain_size', box )
+    dset_id.attrs.create('origin', origin )
+    dset_id.attrs.create('nxyz', nxyz )
+
+    fid.close()
 
 
 
@@ -614,8 +780,10 @@ def load_image( infilename ):
     return data
 
 
-def tiff2hdf( dir, outfile, striding=1 ):
-    import glob
+def tiff2hdf( dir, outfile, dx=1, origin=np.array([0,0,0]) ):
+    print('******************************')
+    print('* tiff2hdf                   *')
+    print('******************************')
 
     # first, get the list of tiff files to process
     files = glob.glob( dir+'/*.tif*' )
@@ -624,17 +792,63 @@ def tiff2hdf( dir, outfile, striding=1 ):
 
     nz = len(files)
 
-    # read in first file to get the resolution
-    data = load_image(files[0])
-    nx, ny = data.shape
+    if nz>0:
+        # read in first file to get the resolution
+        data = load_image(files[0])
+        nx, ny = data.shape
 
-    data = np.zeros([nx,ny,nz])
-    print( "Data dimension is %i %i %i" % (nx,ny,nz))
+        # allocate (single precision) data
+        data = np.zeros([nx,ny,nz], dtype=np.float32)
 
-    for i in range(nz):
-        sheet = load_image( files[i] )
-        data[:,:,i] = sheet.copy()
+        # it is useful to now use the entire array, so python can crash here if
+        # out of memory, and not after waiting a long time...
+        data = data + 1.0
 
-    write_flusi_HDF5( outfile, 0.0, [float(nx),float(ny),float(nz)], data, viscosity=0.0 )
+        print( "Data dimension is %i %i %i" % (nx,ny,nz))
 
-tiff2hdf('/home/engels/Documents/Research/Insects/3D/projects/corrugation-project/data_uCT/Calliphora/C01-left/Calliphora_01_left-wing_wing/','test_00.h5')
+        for i in range(nz):
+            sheet = load_image( files[i] )
+            data[:,:,i] = sheet.copy()
+
+        write_flusi_HDF5( outfile, 0.0, [float(nx)*dx,float(ny)*dx,float(nz)*dx], data, viscosity=0.0, origin=origin )
+
+
+
+def suzuki_error( filename, component=None ):
+    """compute the error for suzukis test case"""
+
+    reference_file = '/home/engels/Documents/Research/Insects/3D/projects/suzuki_validation/Digitize/lift_FV_new.txt'
+
+    import insect_tools
+
+    # read reference data, digitized from suzukis paper
+    dref = insect_tools.load_t_file( reference_file )
+
+    # read actual data
+    data = insect_tools.load_t_file( filename )
+
+    import numpy as np
+
+    # interpolate actual data on ref data points
+    data = insect_tools.interp_matrix( data, dref[:,0] )
+
+
+    # Suzuki et al. eq. in appendix B.5.2
+    L = 0.833
+    c = 0.4167
+    rho = 1
+    utip = 2*np.pi*(80*np.pi/180)*(0.1667+0.833)/1
+    fcoef = 0.5*rho*(utip**2)*(L*c)
+
+    data[:,3] /= fcoef
+
+
+
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(data[:,0], data[:,3], dref[:,0], dref[:,1])
+    plt.title(filename)
+
+    err = np.trapz( abs(data[:,3]-dref[:,1]), x=data[:,0] ) / np.trapz( abs(dref[:,1]), x=data[:,0] )
+
+    return err
