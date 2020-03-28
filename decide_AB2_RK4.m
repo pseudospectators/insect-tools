@@ -20,6 +20,8 @@ CFL_AB2 = 0.2;
 eps_new = eps;%/4;
 dx_new = dx;%/2;
 
+fprintf('Assuming CFL_RK4=%f CFL_AB2=%f\n',CFL_RK4,CFL_AB2)
+
 t_rk4 = 0;
 it_rk4 = 0;
 while t_rk4 < tmax
@@ -41,8 +43,11 @@ end
 fprintf('---------SAME LEVEL--------------------\n');
 fprintf('AB2: nt=%i nrhs=%i dt_mean=%e\n',it_ab2, it_ab2, tmax/it_ab2)
 fprintf('RK4: nt=%i nrhs=%i dt_mean=%e\n',it_rk4, it_rk4*4, tmax/it_rk4)
-fprintf('AB2/RK4 = %f\n',it_ab2/(it_rk4*4))
-fprintf('RK4/AB2 = %f\n',(it_rk4*4)/it_ab2)
+if ( it_rk4*4 > it_ab2 )
+    fprintf('AB2 is faster (factor=%f)\n',it_rk4*4/it_ab2)
+else
+    fprintf('RK4 is faster (factor=%f)\n',it_ab2/it_rk4/4)
+end
 
 %% one level up
 CFL_RK4 = 2.0;
@@ -71,8 +76,11 @@ end
 fprintf('---------ONE LEVEL UP--------------------\n');
 fprintf('AB2: nt=%i nrhs=%i dt_mean=%e\n',it_ab2, it_ab2, tmax/it_ab2)
 fprintf('RK4: nt=%i nrhs=%i dt_mean=%e\n',it_rk4, it_rk4*4, tmax/it_rk4)
-fprintf('AB2/RK4 = %f\n',it_ab2/(it_rk4*4))
-fprintf('RK4/AB2 = %f\n',(it_rk4*4)/it_ab2)
+if ( it_rk4*4 > it_ab2 )
+    fprintf('AB2 is faster (factor=%f)\n',it_rk4*4/it_ab2)
+else
+    fprintf('RK4 is faster (factor=%f)\n',it_ab2/it_rk4/4)
+end
 
 %% two levels up
 CFL_RK4 = 2.0;
@@ -101,6 +109,9 @@ end
 fprintf('---------TWO LEVEL UP--------------------\n');
 fprintf('AB2: nt=%i nrhs=%i dt_mean=%e\n',it_ab2, it_ab2, tmax/it_ab2)
 fprintf('RK4: nt=%i nrhs=%i dt_mean=%e\n',it_rk4, it_rk4*4, tmax/it_rk4)
-fprintf('AB2/RK4 = %f\n',it_ab2/(it_rk4*4))
-fprintf('RK4/AB2 = %f\n',(it_rk4*4)/it_ab2)
+if ( it_rk4*4 > it_ab2 )
+    fprintf('AB2 is faster (factor=%f)\n',it_rk4*4/it_ab2)
+else
+    fprintf('RK4 is faster (factor=%f)\n',it_ab2/it_rk4/4)
+end
 fprintf('-----------------------------------------\n');

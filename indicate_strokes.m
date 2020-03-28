@@ -88,6 +88,9 @@ fmax = a(4);
 if (length(t_begin)>1)
     tdown = t_begin;
 else
+    if (tmin > 0.0)
+        warning('Start time of figure is not zero, we dont start at integer strokes. Consider passing t_begin array');
+    end
     tdown = tmin:tmax-1;
 end
 

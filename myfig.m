@@ -19,16 +19,16 @@ function myfig(ifig,AR,factor,font)
     end
         
 
-%     clf; 
-
+    
     set(h_fig,'DefaultaxesFontSize',font);
     set(h_fig,'DefaulttextFontsize',font);
     set(h_fig,'DefaultaxesFontName','Times');
     set(h_fig,'DefaulttextFontName','Times');
-
-
+    
+%     set(h_fig,'DefaultaxesFontName','Arial');
+%     set(h_fig,'DefaulttextFontName','Arial');
     set(h_fig,'Units','centimeters','Position',factor*[2 5 20.4 AR*20.4],'Resize','on','PaperPositionMode','auto');
-
-    hold on;
+    clf; 
+    hold on;  
     box on
 end

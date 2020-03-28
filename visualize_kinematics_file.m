@@ -34,7 +34,8 @@ set(0,'DefaulttextFontName','Times');
 
 % Create figure
 h_fig = figure;
-set(h_fig,'Units','centimeters','Position',0.65*[10 8.0 19.0 8.8],'Resize','on','PaperPositionMode','auto'); 
+% set(h_fig,'Units','centimeters','Position',0.65*[10 8.0 19.0 8.8],'Resize','on','PaperPositionMode','auto'); 
+set(h_fig,'Units','centimeters','Position',0.65*[10 8.0 14.0 8.8],'Resize','on','PaperPositionMode','auto'); 
 clf;
 
 if invert_theta
@@ -45,10 +46,14 @@ end
 
 
 % Annotate
-axis([0 1 -100 100]);
+a = axis;
+% factor = 1.2;
+% axis([0 1 -factor*a(4) factor*a(4)]);
 set(gca,'XTick',[0:0.2:1]);
 set(gca,'YTick',[-90:30:90]);
 legend('positional','feathering','elevation','Location','NorthEastOutside');
+legend('positional','feathering','elevation','Location','Best');
+% legend('positional','feathering','elevation');
 xlabel('wingbeat time fraction');
 ylabel('angle, deg');
 
